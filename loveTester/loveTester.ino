@@ -1,32 +1,32 @@
-#include <WS2812FX.h>
+#include <WS2812FX.h> //requires the WS2812FX library
 
 
 
-#define LED_COUNT 10
-#define LED_PIN D5
+#define LED_COUNT 10 //how many leds on the strip
+#define LED_PIN D5 // ledstrip pin
 
 
 
-int minVal = 2;
-int maxVal = 100;
-int readings = 20;
-int resultTimeOut = 5000;
-int baselineReadings = 20;
-int currentReading = 0;
-int totalReading = 0;
-const long delayTime = 200;
-unsigned long previousMillis = 0;
-int ledsOn = 0;
+int minVal = 2; // 'minimum' value (in %) on analog read (gets set automatically in state 0)
+int maxVal = 100; // 'maximum' value (in %) on analog read
+int readings = 20; // how many readings should be done to determine average value
+int resultTimeOut = 5000; // how long should the result be shown?
+int baselineReadings = 20; // how many readings should be done to determine baseline value?
+int currentReading = 0; //counter
+int totalReading = 0; //counter
+const long delayTime = 200; //polling rate
+unsigned long previousMillis = 0; //counter
+int ledsOn = 0; //variable to keep track of how many LED's should be on
 int state = 0; //0: gather baseline data, 1: show idle animation, 2: show measure animation and measure, 3: show measurement
 
-int animSpeed = 3000;
-int startupAnim = 0;
-int idleAnim = 55;
-int measureAnim = 13;
-int resultAnim = 0;
+int animSpeed = 3000; //effect animation speed
+int startupAnim = 0; //animation on startup
+int idleAnim = 55; //animation to show when idle (not reading values)
+int measureAnim = 13; //animation to show while measuring
+int resultAnim = 0; //animation to show when showing result
 
-int inVal;
-int perC;
+int inVal; //reading variable
+int perC; //percentage variable
 
 WS2812FX ws2812fx = WS2812FX(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
