@@ -3,12 +3,15 @@
 
 
 #define LED_COUNT 10 //how many leds on the strip
+#define LED_COUNT2 9 //how many leds on the strip
 #define LED_PIN D5 // ledstrip pin
+#define LED_PIN2 D6 // ledstrip pin
 
 
 
-int minVal = 2; // 'minimum' value (in %) on analog read (gets set automatically in state 0)
-int maxVal = 100; // 'maximum' value (in %) on analog read
+int minVal = 2; // 'minimum' value on analog read (gets set automatically in state 0)
+int maxVal = 1024; // 'maximum' value on analog read
+int booster = 500; // booster value (between 0-1024), higher booster = higher results
 int readings = 20; // how many readings should be done to determine average value
 int resultTimeOut = 5000; // how long should the result be shown?
 int baselineReadings = 20; // how many readings should be done to determine baseline value?
@@ -29,6 +32,7 @@ int inVal; //reading variable
 int perC; //percentage variable
 
 WS2812FX ws2812fx = WS2812FX(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+WS2812FX ws2812fx2 = WS2812FX(LED_COUNT2, LED_PIN2, NEO_GRB + NEO_KHZ800);
 
 void setup() {
   pinMode(A0, INPUT);
@@ -40,10 +44,18 @@ void setup() {
   ws2812fx.setColor(0xff0000);
   ws2812fx.setMode(startupAnim);
   ws2812fx.start();
+
+  ws2812fx2.init();
+  ws2812fx2.setBrightness(100);
+  ws2812fx2.setSpeed(animSpeed);
+  ws2812fx2.setColor(0xff0000);
+  ws2812fx2.setMode(11);
+  ws2812fx2.start();
 }
 
 void loop() {
   ws2812fx.service();
+  ws2812fx2.service();
   unsigned long currentMillis = millis();
 
   switch(state)
@@ -56,7 +68,7 @@ void loop() {
         if(currentReading < baselineReadings)
         {
           inVal = analogRead(A0);
-          perC = map(inVal, minVal, maxVal, 0,100);
+          perC = map(inVal, minVal, (maxVal - booster), 0,100);
           totalReading = totalReading + perC;
           currentReading++;
         }else{
@@ -76,7 +88,7 @@ void loop() {
     case 1:
       //check if measured value > baseline
       inVal = analogRead(A0);
-      perC = map(inVal, minVal, maxVal, 0,100);
+      perC = map(inVal, minVal, (maxVal - booster), 0,100);
       if(perC > (minVal+1))
       {
         Serial.println("Higher value detected, measuring");
@@ -97,7 +109,9 @@ void loop() {
         if(currentReading < readings)
         {
           inVal = analogRead(A0);
-          perC = map(inVal, minVal, maxVal, 0,100);
+          Serial.print("MEASUREMENT: ");
+          Serial.println(inVal);
+          perC = map(inVal, minVal, (maxVal - booster), 0,100);
           totalReading = totalReading + perC;
           currentReading++;
         }
